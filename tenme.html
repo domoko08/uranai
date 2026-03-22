@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>天命キャラ診断 — MBTI × 算命学</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fafaf9;--surface:#fff;--border:#e8e4de;--border-light:#f0ece6;
+  --text:#1a1a18;--text2:#6b6860;--text3:#a09d98;
+  --ok-bg:#f0f7f0;--ok-border:#b8d8b8;--ok-text:#2d6b2d;
+  --warn-bg:#fffbf0;--warn-border:#f0d890;--warn-text:#7a5c00;
+}
+html{background:var(--bg)}
+body{font-family:'Noto Sans JP',sans-serif;color:var(--text);background:var(--bg);min-height:100vh;font-size:14px;line-height:1.6}
+.page{max-width:720px;margin:0 auto;padding:48px 20px 80px}
+.site-header{text-align:center;margin-bottom:48px}
+.site-header h1{font-size:22px;font-weight:300;letter-spacing:6px;margin-bottom:6px}
+.site-header p{font-size:11px;color:var(--text3);letter-spacing:3px}
+.header-line{width:32px;height:1px;background:var(--border);margin:16px auto}
+.tabs{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:32px;background:var(--surface)}
+.tab{flex:1;padding:10px 8px;font-size:12px;cursor:pointer;background:transparent;border:none;color:var(--text2);font-family:'Noto Sans JP',sans-serif;transition:all .15s;letter-spacing:.5px}
+.tab.on{background:var(--text);color:#fff;font-weight:500}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+.card-label{font-size:11px;color:var(--text3);margin-bottom:14px;font-weight:500;letter-spacing:1px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;color:var(--text2);letter-spacing:.5px}
+input[type=text],input[type=date]{
+  width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);
+  border-radius:7px;font-size:13px;font-family:'Noto Sans JP',sans-serif;
+  color:var(--text);outline:none;transition:border-color .15s
+}
+input:focus{border-color:var(--text)}
+.mbti-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:4px}
+.mb{
+  padding:7px 2px;font-size:11px;font-family:'Noto Sans JP',sans-serif;
+  background:var(--surface);border:1px solid var(--border);border-radius:6px;
+  cursor:pointer;color:var(--text2);text-align:center;transition:all .15s;
+  -webkit-appearance:none;appearance:none
+}
+.mb:hover{background:var(--bg);color:var(--text);border-color:var(--text2)}
+.mb.on{background:var(--text);color:#fff;border-color:var(--text);font-weight:500}
+.submit{
+  width:100%;padding:12px;font-size:13px;font-family:'Noto Sans JP',sans-serif;
+  background:var(--text);color:#fff;border:none;border-radius:8px;
+  cursor:pointer;font-weight:500;margin-top:4px;letter-spacing:1px;transition:opacity .15s
+}
+.submit:hover{opacity:.82}
+.submit:disabled{opacity:.4;cursor:not-allowed}
+.add-btn{
+  font-size:12px;color:var(--text2);background:none;border:1px dashed var(--border);
+  border-radius:8px;padding:9px 16px;cursor:pointer;width:100%;
+  font-family:'Noto Sans JP',sans-serif;margin-top:4px;transition:background .15s
+}
+.add-btn:hover{background:var(--bg)}
+.rbtn{
+  width:22px;height:22px;border-radius:50%;background:none;border:1px solid var(--border);
+  cursor:pointer;color:var(--text3);font-size:13px;display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;font-family:'Noto Sans JP',sans-serif;line-height:1
+}
+.pnum{
+  width:22px;height:22px;border-radius:50%;background:var(--bg);border:1px solid var(--border);
+  font-size:11px;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;color:var(--text2);font-weight:500
+}
+.err{font-size:12px;color:#c0392b;padding:6px 0}
+.hr{border:none;border-top:1px solid var(--border-light);margin:14px 0}
+.avatar{
+  width:38px;height:38px;border-radius:50%;background:var(--bg);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0
+}
+.chara-badge{
+  display:inline-flex;align-items:center;gap:12px;
+  padding:12px 18px;border:1px solid var(--border);border-radius:12px;
+  margin-bottom:14px;background:var(--surface);width:100%
+}
+.chara-icon{font-size:32px;line-height:1;flex-shrink:0}
+.chara-name{font-size:20px;font-weight:500;letter-spacing:1px}
+.chara-sub{font-size:12px;color:var(--text2);margin-top:3px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.tag{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--border);color:var(--text2);background:var(--bg)}
+.tag-ok{border-color:var(--ok-border);color:var(--ok-text);background:var(--ok-bg)}
+.tag-warn{border-color:var(--warn-border);color:var(--warn-text);background:var(--warn-bg)}
+.stitle{font-size:11px;font-weight:500;color:var(--text2);margin:14px 0 5px;letter-spacing:.5px}
+.prose{font-size:13px;line-height:1.9;color:var(--text)}
+.loading-text{font-size:13px;color:var(--text2);padding:2rem 0;text-align:center}
+.multi-card{border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:12px;background:var(--surface)}
+.multi-header{display:flex;align-items:center;gap:10px;cursor:pointer}
+.expand-btn{
+  margin-left:auto;font-size:11px;color:var(--text2);background:none;
+  border:1px solid var(--border);border-radius:6px;padding:3px 10px;
+  cursor:pointer;font-family:'Noto Sans JP',sans-serif;flex-shrink:0
+}
+.footer{text-align:center;margin-top:64px;padding-top:24px;border-top:1px solid var(--border-light)}
+.footer p{font-size:11px;color:var(--text3);letter-spacing:1px;line-height:2}
+.footer a{color:var(--text2);text-decoration:underline;text-underline-offset:2px}
+@media(max-width:480px){
+  .page{padding:32px 16px 64px}
+  .row2{grid-template-columns:1fr}
+  .chara-name{font-size:17px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="site-header">
+  <h1>天命キャラ診断</h1>
+  <div class="header-line"></div>
+  <p>MBTI &nbsp;×&nbsp; 算命学 &nbsp;×&nbsp; AI解析</p>
+</header>
+
+<div class="tabs">
+  <button class="tab on" onclick="sv('single')">1人を診断</button>
+  <button class="tab" onclick="sv('multi')">複数人を診断</button>
+</div>
+
+<div id="v-single">
+  <div class="card">
+    <div class="card-label">基本情報</div>
+    <div class="row2">
+      <div class="field"><label>名前</label><input type="text" id="sn" placeholder="山田 花子"></div>
+      <div class="field"><label>生年月日</label><input type="date" id="sb"></div>
+    </div>
+    <div class="field"><label>MBTIタイプ（任意）</label><div class="mbti-grid" id="sm"></div></div>
+  </div>
+  <div id="se" class="err" style="display:none"></div>
+  <button class="submit" id="sbtn" onclick="runS()">キャラを診断する</button>
+  <div id="sr"></div>
+</div>
+
+<div id="v-multi" style="display:none">
+  <div class="card">
+    <div class="card-label">メンバー</div>
+    <div id="ml"></div>
+    <button class="add-btn" id="ab" onclick="addM()">＋ メンバーを追加</button>
+  </div>
+  <div id="me" class="err" style="display:none"></div>
+  <button class="submit" id="mbtn" onclick="runM()">全員を診断する</button>
+  <div id="mr"></div>
+</div>
+
+<footer class="footer">
+  <p>天命キャラ診断 &nbsp;—&nbsp; MBTI × 算命学 × AI解析</p>
+  <p style="margin-top:8px">
+    本ツールは参考目的のオリジナル診断です。<br>
+    MBTIの正式な診断は <a href="https://www.mbtionline.com" target="_blank" rel="noopener">Myers-Briggs 公式サイト</a> でお受けください。<br>
+    「MBTI®」はThe Myers-Briggs Companyの登録商標です。
+  </p>
+</footer>
+
+</div>
+
+<script>
+const MBTI_LIST=['INTJ','INTP','ENTJ','ENTP','INFJ','INFP','ENFJ','ENFP','ISTJ','ISFJ','ESTJ','ESFJ','ISTP','ISFP','ESTP','ESFP'];
+const sel={};
+const mPersons=[];
+let mCnt=0;
+
+const MBTI_GROUP={
+  INTJ:'分析家',INTP:'分析家',ENTJ:'分析家',ENTP:'分析家',
+  INFJ:'外交官',INFP:'外交官',ENFJ:'外交官',ENFP:'外交官',
+  ISTJ:'番人',ISFJ:'番人',ESTJ:'番人',ESFJ:'番人',
+  ISTP:'探検家',ISFP:'探検家',ESTP:'探検家',ESFP:'探検家'
+};
+
+const SANMEI_GROUP={
+  天将星:'火陽',天禄星:'土陽',天貴星:'金陽',天南星:'木陽',
+  天恍星:'水陰',天獄星:'土陰',天極星:'金陰',天胡星:'木陰',
+  天馳星:'火陰',天報星:'水陽'
+};
+
+const SANMEI_TO_8={
+  火陽:'火陽',火陰:'火陰',木陽:'木陽',木陰:'木陰',
+  土陽:'土陽',土陰:'土陰',金陽:'金陽',金陰:'金陰',
+  水陽:'木陽',水陰:'木陰'
+};
+
+const CHARA_MAP={
+  '分析家_火陽':{name:'フロントランナー',icon:'⚡',sub:'先頭を走る革新者'},
+  '分析家_火陰':{name:'ストラテジスト',icon:'♟',sub:'冷静に勝利を設計する者'},
+  '分析家_木陽':{name:'イノベーター',icon:'🌱',sub:'常識を超えるアイデアの人'},
+  '分析家_木陰':{name:'アーキテクト',icon:'📐',sub:'緻密に世界を設計する者'},
+  '分析家_土陽':{name:'マスタープランナー',icon:'🗺',sub:'大局を見通す戦略家'},
+  '分析家_土陰':{name:'アナリスト',icon:'🔬',sub:'深く掘り下げる探究者'},
+  '分析家_金陽':{name:'ディシジョンメーカー',icon:'⚖',sub:'迷わず道を切り開く者'},
+  '分析家_金陰':{name:'クリティカルシンカー',icon:'💎',sub:'本質を見抜く鋭い思考者'},
+  '外交官_火陽':{name:'インスパイアラー',icon:'🔥',sub:'周囲に火をつける情熱家'},
+  '外交官_火陰':{name:'ビジョナリー',icon:'🌅',sub:'未来を描き人を動かす者'},
+  '外交官_木陽':{name:'ハーモナイザー',icon:'🌿',sub:'つながりで世界を豊かにする'},
+  '外交官_木陰':{name:'エンパス',icon:'🕊',sub:'深く共感し人の心に寄り添う'},
+  '外交官_土陽':{name:'コミュニティビルダー',icon:'🤝',sub:'人と人をつなぐ架け橋'},
+  '外交官_土陰':{name:'カウンセラー',icon:'💬',sub:'心の声を聴き導くサポーター'},
+  '外交官_金陽':{name:'チェンジメーカー',icon:'✨',sub:'社会を変える行動する理想家'},
+  '外交官_金陰':{name:'メンター',icon:'🌙',sub:'静かに人の可能性を引き出す者'},
+  '番人_火陽':{name:'リーダーシップ',icon:'🦁',sub:'チームを引っ張る頼れる旗手'},
+  '番人_火陰':{name:'プロテクター',icon:'🛡',sub:'仲間を守り抜く番人'},
+  '番人_木陽':{name:'グロースドライバー',icon:'🌳',sub:'着実に成長を積み上げる人'},
+  '番人_木陰':{name:'ロイヤルサポーター',icon:'🌾',sub:'誠実に支え続ける縁の下の力持ち'},
+  '番人_土陽':{name:'オーガナイザー',icon:'📋',sub:'秩序と安定をつくる実務家'},
+  '番人_土陰':{name:'ステディワーカー',icon:'⚙',sub:'コツコツと信頼を積み上げる人'},
+  '番人_金陽':{name:'エグゼキューター',icon:'🏆',sub:'目標に向かって着実に動く実行者'},
+  '番人_金陰':{name:'クオリティキーパー',icon:'🔒',sub:'品質と正確さを守り続ける番人'},
+  '探検家_火陽':{name:'アドベンチャラー',icon:'🚀',sub:'リスクを恐れず飛び込む行動家'},
+  '探検家_火陰':{name:'インパクトプレイヤー',icon:'💥',sub:'現場で空気を変える切り込み隊長'},
+  '探検家_木陽':{name:'フリースピリット',icon:'🦋',sub:'自由に変化を楽しむ風来坊'},
+  '探検家_木陰':{name:'クリエイター',icon:'🎨',sub:'感性で世界に色を加える表現者'},
+  '探検家_土陽':{name:'プラクティショナー',icon:'🔧',sub:'現場で手を動かす問題解決者'},
+  '探検家_土陰':{name:'アダプター',icon:'🌊',sub:'どんな環境にも溶け込む柔軟人'},
+  '探検家_金陽':{name:'ネゴシエーター',icon:'🤜',sub:'交渉と調整で道を切り開く人'},
+  '探検家_金陰':{name:'スペシャリスト',icon:'🎯',sub:'深い専門性で勝負するプロ'},
+};
+
+function buildMbtiGrid(cid){
+  const el=document.getElementById(cid);if(!el)return;el.innerHTML='';
+  MBTI_LIST.forEach(t=>{
+    const b=document.createElement('button');b.className='mb';b.textContent=t;b.type='button';
+    b.addEventListener('click',()=>{el.querySelectorAll('.mb').forEach(x=>x.classList.remove('on'));b.classList.add('on');sel[cid]=t;});
+    el.appendChild(b);
+  });
+}
+
+function sv(v){
+  ['single','multi'].forEach(x=>document.getElementById('v-'+x).style.display=x===v?'':'none');
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',['single','multi'][i]===v));
+}
+
+function getSanmei(birth){
+  if(!birth)return{star:'天将星',element:'火陽',group:'火陽'};
+  const d=new Date(birth),y=d.getFullYear(),m=d.getMonth()+1,day=d.getDate();
+  const stars=Object.keys(SANMEI_GROUP);
+  const star=stars[(y+m+day)%10];
+  const element=SANMEI_GROUP[star];
+  const group=SANMEI_TO_8[element]||element;
+  return{star,element,group};
+}
+
+function getChara(mbti,sanmeiGroup){
+  const mg=MBTI_GROUP[mbti]||'分析家';
+  return CHARA_MAP[mg+'_'+sanmeiGroup]||{name:'ユニークタイプ',icon:'🌟',sub:'唯一無二の個性の持ち主'};
+}
+
+function ini(n){const t=(n||'').trim();return t.length>=2?t[0]+t[t.length-1]:t[0]||'?';}
+
+async function callAI(prompt){
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+  });
+  const d=await res.json();
+  const txt=d.content.map(i=>i.text||'').join('');
+  return JSON.parse(txt.replace(/```json|```/g,'').trim());
+}
+
+function buildPrompt(name,mbti,sanmei,chara){
+  return `あなたは性格診断の専門家です。以下の情報をもとに${name}さんの診断結果をJSONで返してください。
+
+【診断情報】
+- 名前: ${name}
+- MBTI: ${mbti||'不明'}（グループ: ${MBTI_GROUP[mbti]||'不明'}）
+- 算命学主星: ${sanmei.star}（五行: ${sanmei.element}）
+- キャラクタータイプ: ${chara.name}（${chara.sub}）
+
+以下の形式でJSONのみ返してください（前置き・コードブロック不要）:
+{
+  "description": "このキャラクターの本質を表す説明文（120字程度、です・ます調）",
+  "strengths": ["強み1（10字以内）","強み2","強み3"],
+  "weaknesses": ["弱み1（10字以内）","弱み2","弱み3"],
+  "work_style": "仕事スタイルと向いている環境（100字程度）",
+  "best_work": ["向いている職種1","向いている職種2","向いている職種3"],
+  "relationship": "他者との付き合い方のコツ（100字程度）",
+  "advice": "この人へのひとことアドバイス（60字程度）"
+}`;
+}
+
+function renderResult(name,birth,mbti,sanmei,chara,r){
+  const mg=MBTI_GROUP[mbti]||'—';
+  return `<div style="padding-top:1.5rem">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+    <div class="avatar">${ini(name)}</div>
+    <div>
+      <div style="font-size:15px;font-weight:500">${name||'名無し'}</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:2px">${birth}</div>
+    </div>
+  </div>
+  <div class="chara-badge">
+    <span class="chara-icon">${chara.icon}</span>
+    <div>
+      <div class="chara-name">${chara.name}</div>
+      <div class="chara-sub">${chara.sub}</div>
+    </div>
+  </div>
+  <div class="tags">
+    ${mbti?`<span class="tag">${mbti}</span>`:''}
+    <span class="tag">${mg}</span>
+    <span class="tag">${sanmei.star}</span>
+    <span class="tag">${sanmei.element}</span>
+  </div>
+  <div class="hr"></div>
+  <div class="prose">${r.description}</div>
+  <div class="hr"></div>
+  <div class="stitle">強み</div>
+  <div class="tags">${r.strengths.map(s=>`<span class="tag tag-ok">${s}</span>`).join('')}</div>
+  <div class="stitle" style="margin-top:10px">弱み・注意点</div>
+  <div class="tags">${r.weaknesses.map(s=>`<span class="tag tag-warn">${s}</span>`).join('')}</div>
+  <div class="hr"></div>
+  <div class="stitle">仕事スタイル</div>
+  <div class="prose">${r.work_style}</div>
+  <div class="stitle" style="margin-top:10px">向いている職種</div>
+  <div class="tags">${r.best_work.map(s=>`<span class="tag">${s}</span>`).join('')}</div>
+  <div class="hr"></div>
+  <div class="stitle">他者との付き合い方</div>
+  <div class="prose">${r.relationship}</div>
+  <div class="hr"></div>
+  <div class="stitle">アドバイス</div>
+  <div class="prose" style="font-style:italic">${r.advice}</div>
+</div>`;
+}
+
+async function runS(){
+  const name=document.getElementById('sn').value||'名無し';
+  const birth=document.getElementById('sb').value;
+  const err=document.getElementById('se');
+  if(!birth){err.textContent='生年月日を入力してください';err.style.display='block';return;}
+  err.style.display='none';
+  const mbti=sel['sm']||'';
+  const sanmei=getSanmei(birth);
+  const chara=getChara(mbti,sanmei.group);
+  const btn=document.getElementById('sbtn');btn.disabled=true;
+  const sr=document.getElementById('sr');
+  sr.innerHTML=`<p class="loading-text">キャラを鑑定中...</p>`;
+  try{
+    const r=await callAI(buildPrompt(name,mbti,sanmei,chara));
+    sr.innerHTML=renderResult(name,birth,mbti,sanmei,chara,r);
+    sr.scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){
+    sr.innerHTML=`<p class="err">エラーが発生しました。再度お試しください。</p>`;
+  }
+  btn.disabled=false;
+}
+
+async function runM(){
+  const err=document.getElementById('me');
+  if(mPersons.some(id=>!document.getElementById(id+'-b')?.value)){
+    err.textContent='全員の生年月日を入力してください';err.style.display='block';return;
+  }
+  err.style.display='none';
+  const btn=document.getElementById('mbtn');btn.disabled=true;
+  const mr=document.getElementById('mr');
+  mr.innerHTML=`<p class="loading-text">全員を鑑定中...</p>`;
+  const persons=mPersons.map(id=>({
+    name:document.getElementById(id+'-n')?.value||'名無し',
+    birth:document.getElementById(id+'-b')?.value,
+    mbti:sel[id+'-m']||'',
+  }));
+  try{
+    const results=[];
+    for(const p of persons){
+      const sanmei=getSanmei(p.birth);
+      const chara=getChara(p.mbti,sanmei.group);
+      const r=await callAI(buildPrompt(p.name,p.mbti,sanmei,chara));
+      results.push({p,sanmei,chara,r});
+    }
+    mr.innerHTML=results.map(({p,sanmei,chara,r},i)=>`
+      <div class="multi-card">
+        <div class="multi-header" onclick="toggleDetail('d${i}',this)">
+          <div class="avatar">${ini(p.name)}</div>
+          <div>
+            <div style="font-size:14px;font-weight:500">${p.name}</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:1px">${chara.icon} ${chara.name}</div>
+          </div>
+          <button class="expand-btn">詳細を見る ↓</button>
+        </div>
+        <div id="d${i}" style="display:none">
+          <div class="hr" style="margin:10px 0 12px"></div>
+          ${renderResult(p.name,p.birth,p.mbti,sanmei,chara,r)}
+        </div>
+      </div>`).join('');
+  }catch(e){
+    mr.innerHTML=`<p class="err">エラーが発生しました。再度お試しください。</p>`;
+  }
+  btn.disabled=false;
+}
+
+function toggleDetail(id,header){
+  const el=document.getElementById(id);
+  const btn=header.querySelector('.expand-btn');
+  if(el.style.display==='none'){el.style.display='block';btn.textContent='閉じる ↑';}
+  else{el.style.display='none';btn.textContent='詳細を見る ↓';}
+}
+
+function addMRow(){
+  mCnt++;const id='mp'+mCnt;mPersons.push(id);
+  const wrap=document.getElementById('ml');
+  const div=document.createElement('div');
+  div.id='row-'+id;div.style.cssText='display:flex;align-items:flex-start;gap:8px;margin-bottom:16px';
+  const n=mPersons.length;
+  div.innerHTML=`<div class="pnum">${n}</div>
+  <div style="flex:1">
+    <div class="row2" style="margin-bottom:8px">
+      <div class="field"><label>名前</label><input type="text" id="${id}-n" placeholder="山田 花子"></div>
+      <div class="field"><label>生年月日</label><input type="date" id="${id}-b"></div>
+    </div>
+    <div class="field"><label>MBTIタイプ（任意）</label><div class="mbti-grid" id="${id}-m" style="margin-top:4px"></div></div>
+  </div>${n>2?`<button class="rbtn" type="button" onclick="removeMRow('${id}')">×</button>`:''}`;
+  wrap.appendChild(div);buildMbtiGrid(id+'-m');
+  if(mPersons.length>=8)document.getElementById('ab').style.display='none';
+}
+function removeMRow(id){
+  const idx=mPersons.indexOf(id);if(idx>-1)mPersons.splice(idx,1);
+  document.getElementById('row-'+id)?.remove();
+  document.querySelectorAll('#ml .pnum').forEach((el,i)=>el.textContent=i+1);
+  if(mPersons.length<8)document.getElementById('ab').style.display='';
+}
+function addM(){addMRow();}
+
+buildMbtiGrid('sm');
+addMRow();addMRow();
+</script>
+</body>
+</html>
