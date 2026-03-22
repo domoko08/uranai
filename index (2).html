@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>占いカルテ — 16タイプ性格診断 × 五動物占い × 算命学</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fafaf9;
+  --surface:#ffffff;
+  --border:#e8e4de;
+  --border-light:#f0ece6;
+  --text:#1a1a18;
+  --text2:#6b6860;
+  --text3:#a09d98;
+  --accent:#1a1a18;
+  --ok-bg:#f0f7f0;
+  --ok-border:#b8d8b8;
+  --ok-text:#2d6b2d;
+  --ng-bg:#fdf0f0;
+  --ng-border:#e0b8b8;
+  --ng-text:#8b2020;
+}
+html{background:var(--bg)}
+body{font-family:'Noto Sans JP',sans-serif;color:var(--text);background:var(--bg);min-height:100vh;font-size:14px;line-height:1.6}
+
+/* layout */
+.page{max-width:720px;margin:0 auto;padding:48px 20px 80px}
+
+/* header */
+.site-header{text-align:center;margin-bottom:48px}
+.site-header h1{font-size:22px;font-weight:300;letter-spacing:6px;margin-bottom:6px}
+.site-header p{font-size:11px;color:var(--text3);letter-spacing:3px}
+.header-line{width:32px;height:1px;background:var(--border);margin:16px auto}
+
+/* tabs */
+.tabs{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:32px;background:var(--surface)}
+.tab{flex:1;padding:10px 8px;font-size:12px;cursor:pointer;background:transparent;border:none;color:var(--text2);font-family:'Noto Sans JP',sans-serif;transition:all .15s;letter-spacing:.5px}
+.tab.on{background:var(--text);color:#fff;font-weight:500}
+
+/* card */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+.card-label{font-size:11px;color:var(--text3);margin-bottom:14px;font-weight:500;letter-spacing:1px;text-transform:uppercase}
+
+/* form */
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;color:var(--text2);letter-spacing:.5px}
+input[type=text],input[type=date]{
+  width:100%;padding:9px 12px;
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:7px;font-size:13px;
+  font-family:'Noto Sans JP',sans-serif;color:var(--text);outline:none;
+  transition:border-color .15s
+}
+input:focus{border-color:var(--text)}
+.mbti-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:4px}
+.mb{
+  padding:7px 2px;font-size:11px;font-family:'Noto Sans JP',sans-serif;
+  background:var(--surface);border:1px solid var(--border);border-radius:6px;
+  cursor:pointer;color:var(--text2);text-align:center;transition:all .15s;
+  -webkit-appearance:none;appearance:none
+}
+.mb:hover{background:var(--bg);color:var(--text);border-color:var(--text2)}
+.mb.on{background:var(--text);color:#fff;border-color:var(--text);font-weight:500}
+
+/* button */
+.submit{
+  width:100%;padding:12px;font-size:13px;font-family:'Noto Sans JP',sans-serif;
+  background:var(--text);color:#fff;border:none;border-radius:8px;
+  cursor:pointer;font-weight:500;margin-top:4px;letter-spacing:1px;
+  transition:opacity .15s
+}
+.submit:hover{opacity:.82}
+
+.add-btn{
+  font-size:12px;color:var(--text2);background:none;
+  border:1px dashed var(--border);border-radius:8px;
+  padding:9px 16px;cursor:pointer;width:100%;
+  font-family:'Noto Sans JP',sans-serif;margin-top:4px;transition:background .15s
+}
+.add-btn:hover{background:var(--bg)}
+.rbtn{
+  width:22px;height:22px;border-radius:50%;background:none;
+  border:1px solid var(--border);cursor:pointer;color:var(--text3);
+  font-size:13px;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;font-family:'Noto Sans JP',sans-serif;line-height:1
+}
+.pnum{
+  width:22px;height:22px;border-radius:50%;background:var(--bg);
+  border:1px solid var(--border);font-size:11px;display:flex;
+  align-items:center;justify-content:center;flex-shrink:0;
+  color:var(--text2);font-weight:500
+}
+.err{font-size:12px;color:#c0392b;padding:6px 0}
+
+/* result */
+.avatar{
+  width:38px;height:38px;border-radius:50%;background:var(--bg);
+  border:1px solid var(--border);display:flex;align-items:center;
+  justify-content:center;font-size:13px;font-weight:500;flex-shrink:0
+}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.tag{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--border);color:var(--text2);background:var(--bg)}
+.tag-ok{border-color:var(--ok-border);color:var(--ok-text);background:var(--ok-bg)}
+.tag-ng{border-color:var(--ng-border);color:var(--ng-text);background:var(--ng-bg)}
+.animals{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:10px 0}
+.acell{border:1px solid var(--border);border-radius:8px;padding:9px 4px;text-align:center;background:var(--bg)}
+.aface{font-size:10px;color:var(--text3);display:block;margin-bottom:3px;letter-spacing:.5px}
+.aname{font-size:11px;color:var(--text);display:block;font-weight:500}
+.stitle{font-size:11px;font-weight:500;color:var(--text2);margin:14px 0 5px;letter-spacing:.5px;text-transform:uppercase}
+.prose{font-size:13px;line-height:1.9;color:var(--text)}
+.hr{border:none;border-top:1px solid var(--border-light);margin:14px 0}
+.meter-row{display:flex;align-items:center;gap:10px;margin:5px 0}
+.meter-label{font-size:11px;color:var(--text2);width:72px;flex-shrink:0}
+.meter-bg{flex:1;height:3px;background:var(--border-light);border-radius:2px;overflow:hidden}
+.meter-fg{height:100%;border-radius:2px;background:var(--text)}
+.cbar{display:flex;align-items:center;gap:10px;margin:6px 0}
+.clbl{font-size:12px;color:var(--text2);width:40px;flex-shrink:0}
+.bbg{flex:1;height:3px;background:var(--border-light);border-radius:2px;overflow:hidden}
+.bfg{height:100%;border-radius:2px;background:var(--text)}
+.cval{font-size:12px;color:var(--text2);width:32px;text-align:right;flex-shrink:0}
+
+/* footer */
+.footer{text-align:center;margin-top:64px;padding-top:24px;border-top:1px solid var(--border-light)}
+.footer p{font-size:11px;color:var(--text3);letter-spacing:1px}
+
+@media(max-width:480px){
+  .page{padding:32px 16px 64px}
+  .row2{grid-template-columns:1fr}
+  .animals{grid-template-columns:repeat(5,1fr)}
+  .aname{font-size:10px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="site-header">
+  <h1>占いカルテ</h1>
+  <div class="header-line"></div>
+  <p>16タイプ性格診断 &nbsp;×&nbsp; 五動物占い &nbsp;×&nbsp; 算命学</p>
+</header>
+
+<div class="tabs">
+  <button class="tab on" onclick="sv('single')">1人を分析</button>
+  <button class="tab" onclick="sv('multi')">複数人を分析</button>
+  <button class="tab" onclick="sv('compat')">相性を見る</button>
+</div>
+
+<!-- single -->
+<div id="v-single">
+  <div class="card">
+    <div class="card-label">基本情報</div>
+    <div class="row2">
+      <div class="field"><label>名前</label><input type="text" id="sn" placeholder="山田 花子"></div>
+      <div class="field"><label>生年月日</label><input type="date" id="sb"></div>
+    </div>
+    <div class="field"><label>16タイプ性格診断（任意）</label><div class="mbti-grid" id="sm"></div></div>
+  </div>
+  <div id="se" class="err" style="display:none"></div>
+  <button class="submit" onclick="runS()">分析する</button>
+  <div id="sr"></div>
+</div>
+
+<!-- multi -->
+<div id="v-multi" style="display:none">
+  <div class="card">
+    <div class="card-label">メンバー</div>
+    <div id="ml"></div>
+    <button class="add-btn" id="ab" onclick="addM()">＋ メンバーを追加</button>
+  </div>
+  <div id="me" class="err" style="display:none"></div>
+  <button class="submit" onclick="runM()">全員を分析する</button>
+  <div id="mr"></div>
+</div>
+
+<!-- compat -->
+<div id="v-compat" style="display:none">
+  <div class="card">
+    <div class="card-label">比べる2人</div>
+    <div id="cl"></div>
+  </div>
+  <div id="ce" class="err" style="display:none"></div>
+  <button class="submit" onclick="runC()">相性を分析する</button>
+  <div id="cr"></div>
+</div>
+
+<footer class="footer">
+  <p style="margin-bottom:12px">占いカルテ &nbsp;—&nbsp; 16タイプ性格診断 × 五動物占い × 算命学</p>
+  <p style="font-size:11px;color:var(--text3);line-height:2;max-width:480px;margin:0 auto">
+    本ツールは参考目的のオリジナル診断です。<br>
+    動物占いの正確な診断は
+    <a href="https://www.doubutsu-uranai.com" target="_blank" rel="noopener" style="color:var(--text2);text-decoration:underline;text-underline-offset:2px">動物占い® Premium 公式サイト</a>
+    をご利用ください。<br>
+    MBTIの正式な診断は
+    <a href="https://www.mbtionline.com" target="_blank" rel="noopener" style="color:var(--text2);text-decoration:underline;text-underline-offset:2px">Myers-Briggs 公式サイト</a>
+    でお受けください。<br>
+    「動物占い®」はNORAECOM Co.の登録商標です。「MBTI®」はThe Myers-Briggs Companyの登録商標です。
+  </p>
+</footer>
+
+</div><!-- /page -->
+
+<script>
+const MBTI_LIST=['INTJ','INTP','ENTJ','ENTP','INFJ','INFP','ENFJ','ENFP','ISTJ','ISFJ','ESTJ','ESFJ','ISTP','ISFP','ESTP','ESFP'];
+const FACES=['本質','表面','意思決定','希望','隠れ'];
+const ANIMALS=['ライオン','チータ','黒ひょう','虎','たぬき','子守熊','ゾウ','ひつじ','ペガサス','狼','こじか','猿'];
+
+const MD={
+  INTJ:{s:'戦略家。独自のビジョンと論理で目標を達成する。感情より効率を優先し、常に改善を追求する。',d:'データと長期的影響を考慮し論理で判断。直感的洞察も活用する。',h:'実は深く人を気にかけているが、感情を表に出すのが苦手。',st:['戦略的思考','独立心','決断力'],w:['経営コンサルタント','研究開発','プロジェクトマネージャー'],wstyle:'単独または少人数で深く集中できる環境が最も力を発揮する。長期プロジェクトや複雑な問題解決を得意とし、自分でペースをコントロールできる仕事が合う。',fit:['長期戦略の立案','専門知識を活かす仕事','裁量の大きいポジション','データ・論理が重要な分野'],nofit:['細かいルーティン作業','感情的なサポートが中心の仕事','頻繁な方針変更がある環境'],meters:{独立志向:85,戦略思考:92,感情表現:28,チームワーク:45,行動力:70},a:'完璧主義を少し緩め、他者の感情にも目を向けると人間関係が豊かになる。'},
+  INTP:{s:'論理学者。知識と理論を愛し、あらゆる物事の仕組みを理解しようとする。創造的で柔軟な思考の持ち主。',d:'多角的に分析し、理論的一貫性を重視して決断。時に決断が遅くなりがち。',h:'人とつながりたい気持ちは強いが、どう関わればよいか迷うことが多い。',st:['分析力','創造性','客観性'],w:['エンジニア','研究者','システム設計'],wstyle:'自由な発想と深い探究ができる環境が最適。締め切りが緩やかで、自分のペースで理論を構築できる仕事が合う。チームより個人作業を好む。',fit:['研究・開発職','技術的な問題解決','アイデア出し・設計フェーズ','専門性を深める仕事'],nofit:['反復的な事務作業','人前でのプレゼン中心','厳格なルールが多い環境'],meters:{独立志向:88,戦略思考:85,感情表現:25,チームワーク:40,行動力:50},a:'完璧な答えを探し続けず、7割の確信で行動に移す勇気を持つと成果が出やすい。'},
+  ENTJ:{s:'指揮官。生まれながらのリーダーで、目標達成のために組織を動かす力を持つ。',d:'迅速かつ論理的に判断。全体最適を重視し、感情に流されない決断ができる。',h:'弱さを見せることへの恐れがある。実は認められたいという願望が強い。',st:['リーダーシップ','実行力','戦略立案'],w:['経営者','マネージャー','コンサルタント'],wstyle:'権限と責任が明確なポジションで最も輝く。人を動かし、組織を成長させる仕事が天職。スピーディーな意思決定ができる環境を好む。',fit:['マネジメント・リーダー職','新規事業の立ち上げ','高い目標が設定される環境','組織改革・変革推進'],nofit:['指示待ちの文化','自分の裁量がない仕事','スローペースな環境'],meters:{独立志向:75,戦略思考:90,感情表現:50,チームワーク:72,行動力:92},a:'スピード感は強みだが、チームの声に耳を傾ける時間を意識的に作ると長期的に成果が出る。'},
+  ENTP:{s:'討論者。知的好奇心が旺盛でアイデアを素早く生み出す。議論を楽しみ、既存の枠組みへの挑戦を好む。',d:'複数の選択肢を同時に検討し、最もユニークな方向を選ぶ傾向がある。',h:'実は人の反応や評価を気にしており、認められると大きく意欲が高まる。',st:['発想力','議論力','適応力'],w:['起業家','マーケター','クリエイティブディレクター'],wstyle:'変化が多く、新しいアイデアを試せる環境が最適。ルーティンより挑戦的なプロジェクトを好み、多様な人との議論から力を得る。',fit:['スタートアップ・新規事業','企画・マーケティング','コンサルティング','多様なプロジェクトを扱う仕事'],nofit:['単調な繰り返し作業','変化のない保守的な組織','細かい管理が多い環境'],meters:{独立志向:70,戦略思考:82,感情表現:65,チームワーク:68,行動力:78},a:'アイデアを出すだけでなく、一つのことを最後まで実行する力を鍛えると突き抜けられる。'},
+  INFJ:{s:'提唱者。深い共感力と未来への洞察力を持つ。人の可能性を信じ、理想の実現のために静かに力を尽くす。',d:'直感と価値観を軸に判断。表面的な情報より深い意味を読み取ろうとする。',h:'自分の感情を後回しにしすぎて疲弊することがある。本当は休みたいと思っている。',st:['共感力','直感','ビジョン'],w:['カウンセラー','ライター','人材育成'],wstyle:'意味と目的を感じられる仕事でこそ力を発揮する。人の成長や社会への貢献が実感できる環境が合う。静かな集中と深い対話の両方を好む。',fit:['人の成長を支援する仕事','ビジョンや理念が明確な組織','クリエイティブな表現活動','少人数・深い関係の職場'],nofit:['利益だけを追求する環境','表面的なコミュニケーションが多い仕事','価値観が合わない組織'],meters:{独立志向:72,戦略思考:75,感情表現:70,チームワーク:68,行動力:55},a:'人のために尽くす前に、自分自身を大切にすること。境界線を持つことは自分らしさを守ることにつながる。'},
+  INFP:{s:'仲介者。内に豊かな世界を持ち、自分の価値観に忠実に生きる。感受性が強く、美しいものや意味のあることに惹かれる。',d:'価値観と感情に従って判断。論理より「これが正しい」という内なる声を信頼する。',h:'傷つきやすさを隠しているが、深く人を愛する力を持っている。',st:['共感力','創造性','誠実さ'],w:['作家','デザイナー','社会福祉士'],wstyle:'自分の価値観や創造性を表現できる環境が最適。強制や競争より、自分のペースで丁寧に仕事ができる職場が合う。',fit:['創作・表現活動','人を支援・ケアする仕事','自分のペースで進められる仕事','社会的意義のある分野'],nofit:['競争が激しい環境','感情を無視したビジネス文化','細かい数値管理中心の仕事'],meters:{独立志向:80,戦略思考:55,感情表現:75,チームワーク:55,行動力:45},a:'理想と現実のギャップに苦しみやすいが、小さな行動の積み重ねが理想への最短距離になる。'},
+  ENFJ:{s:'主人公。カリスマ的な魅力と共感力で人を惹きつける。他者の成長を支援することに喜びを感じる天性のリーダー。',d:'人への影響を最優先に考えて判断。全員がハッピーになれる方向を探す。',h:'他者を優先しすぎて、自分の本音を言えないストレスを抱えることがある。',st:['コミュニケーション力','共感力','人材育成'],w:['教師','コーチ','人事・採用'],wstyle:'人と深く関わり、成長を支援できる仕事で輝く。チームをまとめるポジションや、相手に寄り添うコミュニケーションが強みになる。',fit:['人材育成・教育','コーチング・カウンセリング','チームリーダー','ファシリテーター'],nofit:['孤立した作業中心の仕事','冷たいビジネスライクな環境','人間関係が希薄な職場'],meters:{独立志向:45,戦略思考:68,感情表現:85,チームワーク:90,行動力:75},a:'みんなを幸せにしようとする姿勢は美しいが、自分の意見や感情も同じくらい大切にしてほしい。'},
+  ENFP:{s:'広報運動家。情熱的で創造的なエネルギーに満ちている。人とのつながりと新しいアイデアを愛し、可能性を追い続ける。',d:'インスピレーションと感情で即断することが多い。直感が鋭く、チャンスを素早く掴む。',h:'自由を愛しながらも、深いところでは安心できる居場所を求めている。',st:['熱意','発想力','人を惹きつける力'],w:['クリエイター','PR・広報','コーチ・ファシリテーター'],wstyle:'自由度が高く、多様な人と関われる環境が最適。アイデアを形にする過程を楽しめる仕事に向いており、熱量で周囲を巻き込む力がある。',fit:['クリエイティブ職','人との関わりが多い仕事','新しいことへの挑戦','自由な発想が活かせる環境'],nofit:['細かいルールが多い環境','一人で黙々とする作業','変化のない繰り返し業務'],meters:{独立志向:60,戦略思考:65,感情表現:88,チームワーク:82,行動力:72},a:'広がり続けるエネルギーを時々一点に集中させると、驚くような成果が生まれる。'},
+  ISTJ:{s:'管理者。責任感が強く、信頼できる実務家。ルールと秩序を重んじ、約束を必ず守る。地道な努力を惜しまない。',d:'実績と事実に基づいて慎重に判断。リスクを最小化しながら確実な方法を選ぶ。',h:'変化への不安を感じることがある。慣れ親しんだやり方への強い愛着がある。',st:['責任感','正確性','継続力'],w:['会計士','品質管理','行政・法務'],wstyle:'明確な役割と手順がある環境でこそ真価を発揮する。長期的に一つの仕事を深めていくことを得意とし、信頼と実績を積み上げるタイプ。',fit:['専門性を積み上げる仕事','ルールと秩序が明確な組織','長期的な信頼関係が重要な職種','正確さが求められる業務'],nofit:['頻繁な方針変更','あいまいな役割分担','スタートアップのような流動的環境'],meters:{独立志向:65,戦略思考:70,感情表現:30,チームワーク:60,行動力:65},a:'変化を恐れず、新しい方法を試す柔軟性を少しずつ鍛えると、さらに活躍の場が広がる。'},
+  ISFJ:{s:'擁護者。温かく気配りができる守り手。細部に目が届き、周囲の人を献身的にサポートする力を持つ。',d:'過去の経験と他者への影響を考えながら慎重に判断。波風を立てない方法を選びがち。',h:'自分の気持ちを後回しにしすぎている。もっと自分の意見を言っていい。',st:['気配り','忠実さ','実行力'],w:['看護師・医療職','教育者','カスタマーサポート'],wstyle:'安定した環境で、誰かの役に立てる仕事が最も合う。細部への気配りと継続的なサポートが強みで、チームの縁の下の力持ち的役割で輝く。',fit:['サポート・ケア職','チームの調整役','継続的な関係が築ける仕事','細部に注意が必要な業務'],nofit:['競争・対立が多い環境','評価が不透明な組織','人への配慮が欠ける職場'],meters:{独立志向:40,戦略思考:55,感情表現:72,チームワーク:85,行動力:55},a:'他者のために動く力は大きな強み。自分のニーズも同じくらい大切にすることで、長く活躍できる。'},
+  ESTJ:{s:'幹部。秩序と責任を重んじる実行者。明確なルールのもとで組織をまとめ、効率よく目標を達成する。',d:'規則・実績・論理に基づいて素早く決断。あいまいな状況を嫌い、明確な方向性を好む。',h:'柔軟性のなさで人を傷つけていることに気づいていないことがある。',st:['組織力','決断力','信頼性'],w:['管理職・マネージャー','法律・行政','オペレーション'],wstyle:'組織の秩序を作り、目標へ向けて人を動かすことを得意とする。責任ある立場で力を発揮し、実績を積み上げていくタイプ。',fit:['管理・運営職','オペレーション改善','数値目標が明確な環境','規律を重んじる組織'],nofit:['あいまいな目標設定','感情中心の意思決定','慣習を無視した職場'],meters:{独立志向:60,戦略思考:80,感情表現:40,チームワーク:70,行動力:88},a:'効率とルールの追求は強みだが、例外や感情への理解を深めるとチームの力が最大化される。'},
+  ESFJ:{s:'領事官。社交的で思いやりがあり、人々の絆を大切にする。場の空気を読む力に優れ、周囲を温かくまとめる。',d:'周囲との調和と他者の気持ちを最優先にして判断。多数決や合意を重視する。',h:'人に嫌われることへの恐れが行動の足かせになることがある。',st:['協調性','気配り','コミュニティ形成'],w:['接客・サービス業','教育','イベント企画'],wstyle:'人と協力しながら進める仕事が最も合う。チームの調和を保ちながら結果を出すことを得意とし、人間関係が豊かな職場で輝く。',fit:['接客・サービス業','チームワークが重要な仕事','コミュニティ運営','ホスピタリティ関連'],nofit:['人間関係が希薄な職場','対立や競争が激しい環境','一人で完結する仕事'],meters:{独立志向:35,戦略思考:55,感情表現:88,チームワーク:92,行動力:65},a:'人に好かれようとするエネルギーを、自分が本当にやりたいことにも向けてみてほしい。'},
+  ISTP:{s:'巨匠。クールで合理的な問題解決者。手を動かしながら仕組みを理解し、実際に機能するものを作ることが得意。',d:'現実的な効果を見て即断。情報収集よりも実際に試してみることを好む。',h:'孤独を好むふりをしているが、信頼できる少数の人との深いつながりを大切にしている。',st:['問題解決力','冷静さ','実践力'],w:['エンジニア','職人・技術者','データ分析'],wstyle:'自分のペースで手を動かし、具体的な問題を解決できる環境が最適。干渉が少なく、技術や専門性を磨ける仕事に向いている。',fit:['技術・エンジニア職','データ分析','職人的な専門職','現場で問題解決する仕事'],nofit:['細かい管理・監視がある環境','感情的なコミュニケーション中心','抽象的な議論だけで終わる仕事'],meters:{独立志向:85,戦略思考:72,感情表現:22,チームワーク:42,行動力:78},a:'単独で解決しようとするより、チームに力を借りると想像以上の結果を生み出せる。'},
+  ISFP:{s:'冒険家。穏やかで感受性豊かなアーティスト。自分の価値観に従って静かに生き、美しいものを表現することを愛する。',d:'その瞬間の感情と価値観で判断。ルールより自分の内なる感覚を信頼する。',h:'自分の才能を過小評価しがち。もっと自信を持っていい。',st:['感受性','創造性','柔軟性'],w:['アーティスト・デザイナー','料理人','カウンセラー'],wstyle:'感性と美的センスを活かせる仕事が最も合う。人に押しつけられる環境より、自分のリズムで丁寧に取り組める職場を好む。',fit:['アート・デザイン職','感性を活かせる仕事','サポート・ケア職','自由な表現ができる環境'],nofit:['競争・数値が全ての環境','強制的なチームワーク','自分らしさを出せない職場'],meters:{独立志向:78,戦略思考:45,感情表現:78,チームワーク:52,行動力:48},a:'内にこもりすぎず、自分の作品や考えを外に出していくことで、新しいつながりが生まれる。'},
+  ESTP:{s:'起業家。エネルギッシュで行動派。現実を素早く読み取り、リスクを恐れず飛び込む。場を盛り上げる天性の才能がある。',d:'直感と状況判断で即決。分析より行動を優先し、失敗から素早く学ぶ。',h:'深く考えることを避けているが、実は鋭い洞察力を持っている。',st:['行動力','交渉力','危機対応'],w:['営業・セールス','起業家','イベントプロデューサー'],wstyle:'変化とスピードが求められる環境で真価を発揮する。現場で判断し動ける仕事が天職。ルーティンより刺激的な状況を好む。',fit:['営業・セールス','現場対応が多い仕事','スタートアップ・起業','交渉や調整が多い職種'],nofit:['デスクワーク中心','変化がない職場','細かい書類作業が多い仕事'],meters:{独立志向:68,戦略思考:65,感情表現:75,チームワーク:70,行動力:95},a:'スピード感は最大の武器。長期的な視野と計画性を加えると、大きなことを成し遂げられる。'},
+  ESFP:{s:'エンターテイナー。明るく自発的で、今この瞬間を全力で楽しむ。人を喜ばせる才能があり、どこにいっても場を明るくする。',d:'楽しいかどうか、自分や周囲が喜ぶかどうかで直感的に判断する。',h:'軽そうに見えて、実は深く人の感情に気づき、傷つきやすい面もある。',st:['明るさ','即興力','共感力'],w:['エンターテイナー・俳優','接客・ホスピタリティ','教育・子ども関連'],wstyle:'人と関わり、楽しい雰囲気を作れる仕事が最も合う。表現の場があり、その場その場で柔軟に動ける環境を好む。',fit:['エンターテインメント','接客・ホスピタリティ','子どもや人と関わる仕事','イベント・体験型のビジネス'],nofit:['孤立した作業','硬直したルールの多い職場','感情表現を抑える環境'],meters:{独立志向:42,戦略思考:48,感情表現:92,チームワーク:85,行動力:80},a:'楽しいことへの嗅覚は宝物。少しだけ未来の計画を立てる習慣をつけると、より安心して飛べる。'},
+};
+
+const AD={ライオン:{d:'誇り高く、リーダー気質。存在感が強く、人を束ねる力がある。',t:'カリスマ・統率'},チーター:{d:'スピードと直感で動く。変化への適応が早く、チャンスを逃さない。',t:'俊敏・機動力'},ゾウ:{d:'深い記憶力と誠実さを持つ。長期的視点で物事を進める安定感がある。',t:'誠実・安定感'},コアラ:{d:'穏やかで癒し系。独自のペースで動き、信頼できる居場所を大切にする。',t:'癒し・マイペース'},タヌキ:{d:'器用で社交的。状況に合わせて立ち回れる柔軟さと愛嬌がある。',t:'柔軟・社交性'},ペガサス:{d:'夢と理想を持つロマンチスト。創造力と自由への強い憧れがある。',t:'創造力・理想主義'},オオカミ:{d:'強い意志と孤高の精神を持つ。チームより自立した行動を好む。',t:'意志力・独立心'},黒ヒョウ:{d:'冷静沈着で洞察力が鋭い。感情を表に出さず、目標に向かって着実に進む。',t:'洞察力・冷静'},サル:{d:'知恵と好奇心の塊。アイデアが次々と浮かび、器用にこなす。',t:'知恵・好奇心'},フラミンゴ:{d:'優雅で美的センスがある。独自の世界観と華やかさを持つ。',t:'美的センス・個性'},トラ:{d:'情熱的で行動力がある。強い信念を持って突き進むエネルギーがある。',t:'情熱・行動力'},コジカ:{d:'繊細で感受性が豊か。人の気持ちへの共感力と純粋さがある。',t:'共感力・純粋さ'},コネコ:{d:'自由で好奇心旺盛。甘えと独立心を併せ持つ気まぐれな魅力がある。',t:'自由・気まぐれ'},チンパンジー:{d:'社交的で頭の回転が速い。グループのムードメーカーになれる。',t:'社交性・機転'},クジャク:{d:'表現力と自己主張が強い。美しさや才能を見せることで輝く。',t:'表現力・自己主張'}};
+
+const SS={天将星:'強いリーダーシップと意志力。人を引っ張る宿命を持つ。',天禄星:'物質的・精神的豊かさを引き寄せる力。安定と繁栄の星。',天貴星:'品格と知性を持ち、上品な印象を与える。人から尊敬される星。',天南星:'変革と革新をもたらす力。時代の流れを変えるエネルギー。',天恍星:'感受性豊かで独特の世界観を持つ。芸術や精神世界に縁がある。',天獄星:'試練を乗り越える強さを持つ。苦労の分だけ大きく成長できる。',天極星:'極端な運気の波を持つ。大きな成功か失敗かの二択になりやすい。',天胡星:'予測不能な閃きと才能。常識にとらわれない自由な発想力。',天馳星:'スピードと行動力。動き続けることで運気が開ける。',天報星:'過去の行いが結果となって返ってくる。因果応報の星。'};
+const EL={木:{d:'成長・柔軟性・始まりのエネルギー。新しいことへの挑戦を好む。'},火:{d:'情熱・明るさ・拡大のエネルギー。表現力と行動力がある。'},土:{d:'安定・信頼・中庸のエネルギー。人をまとめる調整力がある。'},金:{d:'決断・変革・洗練のエネルギー。鋭い判断力と意志がある。'},水:{d:'知性・流動性・深みのエネルギー。柔軟で深い思考力がある。'}};
+const MC={INTJ:{INTJ:72,INTP:85,ENTJ:80,ENTP:78,INFJ:82,INFP:70,ENFJ:75,ENFP:68,ISTJ:74,ISFJ:65,ESTJ:70,ESFJ:60,ISTP:76,ISFP:62,ESTP:65,ESFP:58},INTP:{INTJ:85,INTP:75,ENTJ:78,ENTP:88,INFJ:80,INFP:72,ENFJ:70,ENFP:74,ISTJ:68,ISFJ:62,ESTJ:65,ESFJ:58,ISTP:82,ISFP:65,ESTP:70,ESFP:62},ENTJ:{INTJ:80,INTP:78,ENTJ:72,ENTP:82,INFJ:76,INFP:65,ENFJ:78,ENFP:72,ISTJ:75,ISFJ:68,ESTJ:80,ESFJ:70,ISTP:74,ISFP:62,ESTP:78,ESFP:68},ENTP:{INTJ:78,INTP:88,ENTJ:82,ENTP:74,INFJ:78,INFP:75,ENFJ:72,ENFP:80,ISTJ:65,ISFJ:60,ESTJ:68,ESFJ:62,ISTP:76,ISFP:68,ESTP:72,ESFP:70},INFJ:{INTJ:82,INTP:80,ENTJ:76,ENTP:78,INFJ:76,INFP:85,ENFJ:80,ENFP:82,ISTJ:70,ISFJ:75,ESTJ:65,ESFJ:72,ISTP:68,ISFP:78,ESTP:62,ESFP:70},INFP:{INTJ:70,INTP:72,ENTJ:65,ENTP:75,INFJ:85,INFP:78,ENFJ:82,ENFP:88,ISTJ:62,ISFJ:72,ESTJ:58,ESFJ:68,ISTP:65,ISFP:80,ESTP:58,ESFP:74},ENFJ:{INTJ:75,INTP:70,ENTJ:78,ENTP:72,INFJ:80,INFP:82,ENFJ:74,ENFP:85,ISTJ:68,ISFJ:78,ESTJ:72,ESFJ:80,ISTP:62,ISFP:75,ESTP:68,ESFP:78},ENFP:{INTJ:68,INTP:74,ENTJ:72,ENTP:80,INFJ:82,INFP:88,ENFJ:85,ENFP:76,ISTJ:60,ISFJ:72,ESTJ:62,ESFJ:76,ISTP:68,ISFP:82,ESTP:70,ESFP:80},ISTJ:{INTJ:74,INTP:68,ENTJ:75,ENTP:65,INFJ:70,INFP:62,ENFJ:68,ENFP:60,ISTJ:78,ISFJ:80,ESTJ:85,ESFJ:78,ISTP:76,ISFP:68,ESTP:72,ESFP:62},ISFJ:{INTJ:65,INTP:62,ENTJ:68,ENTP:60,INFJ:75,INFP:72,ENFJ:78,ENFP:72,ISTJ:80,ISFJ:78,ESTJ:76,ESFJ:85,ISTP:65,ISFP:78,ESTP:62,ESFP:75},ESTJ:{INTJ:70,INTP:65,ENTJ:80,ENTP:68,INFJ:65,INFP:58,ENFJ:72,ENFP:62,ISTJ:85,ISFJ:76,ESTJ:78,ESFJ:80,ISTP:74,ISFP:62,ESTP:80,ESFP:68},ESFJ:{INTJ:60,INTP:58,ENTJ:70,ENTP:62,INFJ:72,INFP:68,ENFJ:80,ENFP:76,ISTJ:78,ISFJ:85,ESTJ:80,ESFJ:76,ISTP:62,ISFP:74,ESTP:70,ESFP:80},ISTP:{INTJ:76,INTP:82,ENTJ:74,ENTP:76,INFJ:68,INFP:65,ENFJ:62,ENFP:68,ISTJ:76,ISFJ:65,ESTJ:74,ESFJ:62,ISTP:78,ISFP:72,ESTP:82,ESFP:68},ISFP:{INTJ:62,INTP:65,ENTJ:62,ENTP:68,INFJ:78,INFP:80,ENFJ:75,ENFP:82,ISTJ:68,ISFJ:78,ESTJ:62,ESFJ:74,ISTP:72,ISFP:76,ESTP:68,ESFP:82},ESTP:{INTJ:65,INTP:70,ENTJ:78,ENTP:72,INFJ:62,INFP:58,ENFJ:68,ENFP:70,ISTJ:72,ISFJ:62,ESTJ:80,ESFJ:70,ISTP:82,ISFP:68,ESTP:76,ESFP:80},ESFP:{INTJ:58,INTP:62,ENTJ:68,ENTP:70,INFJ:70,INFP:74,ENFJ:78,ENFP:80,ISTJ:62,ISFJ:75,ESTJ:68,ESFJ:80,ISTP:68,ISFP:82,ESTP:80,ESFP:78}};
+
+const sel={};const mPersons=[];let mCnt=0;
+
+function buildMbtiGrid(cid){
+  const el=document.getElementById(cid);if(!el)return;el.innerHTML='';
+  MBTI_LIST.forEach(t=>{
+    const b=document.createElement('button');b.className='mb';b.textContent=t;b.type='button';
+    b.addEventListener('click',()=>{el.querySelectorAll('.mb').forEach(x=>x.classList.remove('on'));b.classList.add('on');sel[cid]=t;});
+    el.appendChild(b);
+  });
+}
+
+function sv(v){
+  ['single','multi','compat'].forEach(x=>document.getElementById('v-'+x).style.display=x===v?'':'none');
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',['single','multi','compat'][i]===v));
+}
+
+function getAnimal(birth,seed){
+  if(!birth)return ANIMALS[seed%ANIMALS.length];
+  const d=new Date(birth);
+  return ANIMALS[Math.abs(d.getFullYear()*31+d.getMonth()*7+d.getDate()+seed*13)%ANIMALS.length];
+}
+
+function getSanmei(birth){
+  if(!birth)return{star:'天将星',element:'木'};
+  const d=new Date(birth),y=d.getFullYear(),m=d.getMonth()+1,day=d.getDate();
+  return{star:Object.keys(SS)[(y+m+day)%10],element:['木','火','土','金','水'][Math.floor((y%10)/2)]};
+}
+
+function ini(n){const t=(n||'').trim();return t.length>=2?t[0]+t[t.length-1]:t[0]||'?';}
+
+function renderPerson(name,birth,mbti,fiveA,sanmei){
+  const md=MD[mbti];const ad=AD[fiveA[0].animal];
+  const tags=[mbti&&mbti!=='不明'?mbti:null,sanmei.star,sanmei.element+'行'].filter(Boolean);
+  const meters=md?md.meters:{独立志向:60,戦略思考:60,感情表現:60,チームワーク:60,行動力:60};
+  return `<div style="padding-top:1.5rem">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+    <div class="avatar">${ini(name)}</div>
+    <div><div style="font-size:15px;font-weight:500">${name||'名無し'}</div><div style="font-size:12px;color:var(--text2);margin-top:2px">${birth}</div></div>
+  </div>
+  <div class="tags">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+  <div class="animals">${fiveA.map(f=>`<div class="acell"><span class="aface">${f.face}</span><span class="aname">${f.animal}</span></div>`).join('')}</div>
+  <div class="stitle">本質（${fiveA[0].animal}）</div>
+  <div class="prose">${ad?ad.d:'生命力と独自の魅力を持ちます。'}</div>
+  ${md?`<div class="hr"></div>
+  <div class="stitle">MBTI ${mbti} — 性格</div>
+  <div class="prose">${md.s}</div>
+  <div class="stitle">意思決定スタイル</div>
+  <div class="prose">${md.d}</div>
+  <div class="stitle">隠れた本音</div>
+  <div class="prose">${md.h}</div>`:''}
+  <div class="hr"></div>
+  <div class="stitle">特性メーター</div>
+  ${Object.entries(meters).map(([k,v])=>`<div class="meter-row"><span class="meter-label">${k}</span><div class="meter-bg"><div class="meter-fg" style="width:${v}%"></div></div></div>`).join('')}
+  <div class="hr"></div>
+  <div class="stitle">仕事スタイル</div>
+  <div class="prose">${md?md.wstyle:'自分のペースを大切にしながら、独自のやり方で着実に成果を出すスタイル。'}</div>
+  <div class="stitle" style="margin-top:12px">向いていること</div>
+  <div class="tags">${(md?md.fit:['専門職','自由な環境','創造的な仕事']).map(s=>`<span class="tag tag-ok">${s}</span>`).join('')}</div>
+  <div class="stitle" style="margin-top:10px">向いていないこと</div>
+  <div class="tags">${(md?md.nofit:['単純な反復作業','強制的な環境']).map(s=>`<span class="tag tag-ng">${s}</span>`).join('')}</div>
+  <div class="stitle" style="margin-top:10px">強みスキル</div>
+  <div class="tags">${(md?md.st:[ad?.t||'生命力','適応力']).map(s=>`<span class="tag">${s}</span>`).join('')}</div>
+  <div class="stitle" style="margin-top:10px">向いている職種</div>
+  <div class="tags">${(md?md.w:['クリエイティブ職','専門職']).map(s=>`<span class="tag">${s}</span>`).join('')}</div>
+  <div class="hr"></div>
+  <div class="stitle">算命学 — ${sanmei.star}</div>
+  <div class="prose">${SS[sanmei.star]||''} 五行「${sanmei.element}」：${EL[sanmei.element]?.d||''}</div>
+  <div class="hr"></div>
+  <div class="stitle">アドバイス</div>
+  <div class="prose">${md?md.a:'自分の本質的な強みを信じ、着実に歩み続けることで大きな花が咲く。'}</div>
+</div>`;
+}
+
+function runS(){
+  const name=document.getElementById('sn').value||'名無し';
+  const birth=document.getElementById('sb').value;
+  const err=document.getElementById('se');
+  if(!birth){err.textContent='生年月日を入力してください';err.style.display='block';return;}
+  err.style.display='none';
+  document.getElementById('sr').innerHTML=renderPerson(name,birth,sel['sm']||'不明',FACES.map((f,i)=>({face:f,animal:getAnimal(birth,i)})),getSanmei(birth));
+  document.getElementById('sr').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function addMRow(){
+  mCnt++;const id='mp'+mCnt;mPersons.push(id);
+  const wrap=document.getElementById('ml');
+  const div=document.createElement('div');
+  div.id='row-'+id;div.style.cssText='display:flex;align-items:flex-start;gap:8px;margin-bottom:16px';
+  const n=mPersons.length;
+  div.innerHTML=`<div class="pnum">${n}</div>
+  <div style="flex:1">
+    <div class="row2" style="margin-bottom:8px">
+      <div class="field"><label>名前</label><input type="text" id="${id}-n" placeholder="山田 花子"></div>
+      <div class="field"><label>生年月日</label><input type="date" id="${id}-b"></div>
+    </div>
+    <div class="field"><label>MBTI（任意）</label><div class="mbti-grid" id="${id}-m" style="margin-top:4px"></div></div>
+  </div>${n>2?`<button class="rbtn" type="button" onclick="removeMRow('${id}')">×</button>`:''}`;
+  wrap.appendChild(div);buildMbtiGrid(id+'-m');
+  if(mPersons.length>=6)document.getElementById('ab').style.display='none';
+}
+
+function removeMRow(id){
+  const idx=mPersons.indexOf(id);if(idx>-1)mPersons.splice(idx,1);
+  document.getElementById('row-'+id)?.remove();
+  document.querySelectorAll('#ml .pnum').forEach((el,i)=>el.textContent=i+1);
+  if(mPersons.length<6)document.getElementById('ab').style.display='';
+}
+function addM(){addMRow();}
+
+function runM(){
+  const err=document.getElementById('me');
+  if(mPersons.some(id=>!document.getElementById(id+'-b')?.value)){err.textContent='全員の生年月日を入力してください';err.style.display='block';return;}
+  err.style.display='none';
+  let html='';
+  mPersons.forEach((id,i)=>{
+    if(i>0)html+=`<div class="hr" style="margin:24px 0"></div>`;
+    const name=document.getElementById(id+'-n')?.value||'名無し';
+    const birth=document.getElementById(id+'-b')?.value;
+    html+=renderPerson(name,birth,sel[id+'-m']||'不明',FACES.map((f,j)=>({face:f,animal:getAnimal(birth,j)})),getSanmei(birth));
+  });
+  document.getElementById('mr').innerHTML=html;
+}
+
+function getElemCompat(a,b){
+  const m={'木木':'同じエネルギーで共鳴し合い、互いを高め合える関係。','木火':'木が火を育てる最良の組み合わせ。エネルギーが燃え広がる。','木土':'木は土の養分を吸収する。意識的なバランスが大切。','木金':'金は木を整え鍛える関係。緊張感の中に成長がある。','木水':'水が木を育てる温かな関係。','火木':'木に育てられた火が輝く関係。','火火':'同じ情熱で共鳴するが燃えすぎに注意。','火土':'火が土を生む、創造的な関係。','火金':'変革のエネルギーが交わる刺激的な関係。','火水':'消し合う難しさもあるが深みも生まれる関係。','土木':'刺激し合えるがバランスが必要。','土火':'火に育てられ安定する関係。','土土':'安定同士で穏やかな関係。','土金':'土が金を生む育てる関係。','土水':'土が水を吸収する。流れを意識することが大切。','金木':'緊張感の中に成長がある。','金火':'変革のエネルギーが交わる関係。','金土':'育てられる関係。安定を得やすい。','金金':'同志として鋭さを高め合う。','金水':'金が水を生む豊かさをもたらす関係。','水木':'水が木を育てる温かな関係。','水火':'深みもあるが消し合う難しさもある。','水土':'土に吸収される難しさがある。','水金':'金に生まれ豊かな関係。','水水':'流れ合い深め合う関係。'};
+  return m[a+b]||'独自の化学反応がある関係。';
+}
+
+function buildCompatForm(){
+  const el=document.getElementById('cl');el.innerHTML='';
+  [{id:'cp0',lbl:'あなた',ph:'山田 花子'},{id:'cp1',lbl:'お相手',ph:'田中 太郎'}].forEach((p,i)=>{
+    const wrap=document.createElement('div');
+    if(i===0)wrap.style.marginBottom='24px';
+    wrap.innerHTML=`${i===1?`<div style="font-size:11px;color:var(--text3);text-align:center;margin-bottom:14px;letter-spacing:2px">vs</div>`:''}
+    <div class="row2" style="margin-bottom:8px">
+      <div class="field"><label>${p.lbl}の名前</label><input type="text" id="${p.id}-n" placeholder="${p.ph}"></div>
+      <div class="field"><label>生年月日</label><input type="date" id="${p.id}-b"></div>
+    </div>
+    <div class="field"><label>MBTI（任意）</label><div class="mbti-grid" id="${p.id}-m" style="margin-top:4px"></div></div>`;
+    el.appendChild(wrap);buildMbtiGrid(p.id+'-m');
+  });
+}
+
+function runC(){
+  const err=document.getElementById('ce');
+  if(!document.getElementById('cp0-b')?.value||!document.getElementById('cp1-b')?.value){err.textContent='2人の生年月日を入力してください';err.style.display='block';return;}
+  err.style.display='none';
+  const ppl=[{id:'cp0'},{id:'cp1'}].map(({id})=>({
+    name:document.getElementById(id+'-n')?.value||'名無し',
+    birth:document.getElementById(id+'-b')?.value,
+    mbti:sel[id+'-m']||'不明',
+    fiveA:FACES.map((f,j)=>({face:f,animal:getAnimal(document.getElementById(id+'-b').value,j)})),
+    sanmei:getSanmei(document.getElementById(id+'-b').value),
+  }));
+  const[pA,pB]=ppl;
+  const base=(MC[pA.mbti]?.[pB.mbti])||68;
+  const bars=[{l:'総合',v:base},{l:'恋愛',v:Math.min(99,Math.max(50,base-3))},{l:'仕事',v:Math.min(99,Math.max(50,base+4))},{l:'友情',v:Math.min(99,Math.max(50,base+6))}];
+  const cc=base>=85?'自然に補い合える非常に良い相性。互いの強みを引き出し合えます。':base>=75?'良好な相性。考え方の違いが刺激になり互いを高め合えます。':base>=65?'平均的な相性。意識的なコミュニケーションで関係を深めていけます。':'考え方に違いはありますが、差を認め合うことで独自の強い絆が生まれることも。';
+  const wA=MD[pA.mbti],wB=MD[pB.mbti];
+  document.getElementById('cr').innerHTML=`<div style="padding-top:1.5rem">
+  <div style="font-size:14px;font-weight:500;margin-bottom:14px">${pA.name} × ${pB.name}</div>
+  ${bars.map(b=>`<div class="cbar"><span class="clbl">${b.l}</span><div class="bbg"><div class="bfg" style="width:${b.v}%"></div></div><span class="cval">${b.v}%</span></div>`).join('')}
+  <div class="hr"></div>
+  <div class="stitle">動物の相性</div>
+  <div class="prose">${pA.name}さんの本質「${pA.fiveA[0].animal}」（${AD[pA.fiveA[0].animal]?.t||''}）× ${pB.name}さんの本質「${pB.fiveA[0].animal}」（${AD[pB.fiveA[0].animal]?.t||''}）。この2つの特性が交わる関係です。</div>
+  <div class="stitle" style="margin-top:10px">五行の相性（${pA.sanmei.element} × ${pB.sanmei.element}）</div>
+  <div class="prose">${getElemCompat(pA.sanmei.element,pB.sanmei.element)}</div>
+  ${(pA.mbti!=='不明'&&pB.mbti!=='不明')?`<div class="stitle" style="margin-top:10px">MBTIの相性（${pA.mbti} × ${pB.mbti}）</div><div class="prose">${cc}</div>`:''}
+  <div class="hr"></div>
+  <div class="stitle">仕事での相性</div>
+  <div class="prose">${wA&&wB?`${pA.name}さんは「${wA.wstyle.slice(0,28)}…」というスタイル。${pB.name}さんは「${wB.wstyle.slice(0,28)}…」というスタイル。${base>=75?'2人の仕事スタイルは補い合える部分が多く、チームとして力を発揮できます。':'スタイルの違いを理解し合うことで、それぞれの強みを活かせるチームになれます。'}`:''}</div>
+  <div class="hr"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div><div class="stitle">${pA.name}さんへ</div><div class="prose">${getAdv(pA,pB)}</div></div>
+    <div><div class="stitle">${pB.name}さんへ</div><div class="prose">${getAdv(pB,pA)}</div></div>
+  </div>
+</div>`;
+}
+
+function getAdv(me,other){
+  const isI=me.mbti[0]==='I';const otherI=other.mbti?.[0]==='I';
+  if(me.mbti!=='不明'&&other.mbti!=='不明'){
+    if(isI&&!otherI)return`${other.name}さんのエネルギーを活かせるよう、自分の考えを言語化して伝えることを意識すると関係が深まります。`;
+    if(!isI&&otherI)return`${other.name}さんには1対1でじっくり話す時間を作ると、本音を引き出せます。`;
+  }
+  return`${other.name}さんの本質「${other.fiveA[0].animal}」の特性を尊重しながら関わることで、信頼が深まります。`;
+}
+
+buildMbtiGrid('sm');
+addMRow();addMRow();
+buildCompatForm();
+</script>
+</body>
+</html>
